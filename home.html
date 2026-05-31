@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>TFG_Receipt System</title>
+    <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
+    <script src="https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+          --primary: #0c7fda;
+          --primary-dark: #0a5fa8;
+          --accent: #bae6fd;
+          --receipt-blue: #0284c8;
+          --border: #bae6fd;
+          --success: #10b981;
+          --danger: #ef4444;
+          --shadow: 0 15px 45px rgba(12,127,218,0.18);
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+          font-family:'Inter',sans-serif;
+          background:linear-gradient(135deg,#0c7fda,#3b82f6);
+          min-height:100vh;
+          color:#1e293b;
+          padding:20px 0;
+        }
+        .container {
+          max-width:1600px;
+          margin:0 auto;
+          display:grid;
+          grid-template-columns:620px 1fr;
+          gap:30px;
+          padding:30px;
+        }
+        .form-panel { background:white; border-radius:28px; box-shadow:var(--shadow); overflow:hidden; }
+        .form-header {
+            background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+            color:white;
+            padding:40px;
+            text-align:center;
+        }
+        .form-header h1 { font-size:2.6rem; font-weight:800; margin-bottom:8px; }
+        .form-body { padding:40px; }
+        .form-row { display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:24px; }
+        label { display:block; margin-bottom:10px; font-weight:600; color:#334155; }
+        input { width:100%; padding:16px 20px; border:2px solid var(--border); border-radius:16px; font-size:1rem; transition:all .3s; }
+        input:focus { outline:none; border-color:var(--primary); box-shadow:0 0 0 6px rgba(12,127,218,.18); }
+
+        .amount-paid { background:#f0f9ff; padding:20px; border-radius:16px; margin:25px 0; border-left:6px solid var(--primary); }
+
+        .currency-selector { display:flex; background:#f1f5f9; border-radius:16px; overflow:hidden; width:fit-content; margin-bottom:24px; }
+        .currency-btn { padding:14px 28px; border:none; font-weight:600; cursor:pointer; background:transparent; }
+        .currency-btn.active { background:var(--primary); color:white; }
+
+        .payment-options { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:10px; }
+        .payment-option { padding:16px; border:2px solid #e2e8f0; border-radius:14px; cursor:pointer; transition:.3s; text-align:center; }
+        .payment-option:hover { border-color:var(--primary); }
+        .payment-option.selected { border-color:var(--primary); background:#f0f9ff; font-weight:600; }
+
+        .items-table { width:100%; border-collapse:separate; border-spacing:0 12px; margin:30px 0; }
+        .items-table th { background:var(--primary); color:white; padding:18px 14px; text-align:left; font-weight:600; }
+        .items-table td { background:#f8fafc; padding:0; }
+        .items-table input { width:100%; padding:16px 18px; border:none; background:transparent; font-size:1rem; font-weight:500; }
+        .items-table input:focus { background:white; box-shadow:inset 0 0 0 2px var(--primary); }
+        .delete-btn { background:var(--danger); color:white; width:40px; height:40px; border-radius:50%; font-size:1.4rem; cursor:pointer; margin:8px auto; display:block; border:none; }
+
+        .btn { padding:16px 32px; border:none; border-radius:16px; font-weight:700; cursor:pointer; font-size:1.1rem; transition:all .3s; }
+        .btn-add { background:var(--success); color:white; margin-right:12px; }
+        .btn-generate {
+            background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+            color:white;
+            width:100%;
+            padding:22px;
+            font-size:1.35rem;
+            margin-top:30px;
+            box-shadow:0 12px 30px rgba(12,127,218,.4);
+        }
+        .btn-generate:disabled { opacity:0.7; cursor:not-allowed; }
+
+        .preview-panel { background:white; border-radius:28px; box-shadow:var(--shadow); overflow:hidden; }
+        .preview-header { background:linear-gradient(135deg,#1e293b,#334155); color:white; padding:30px; text-align:center; }
+        .preview-body { padding:30px; background:#f0f9ff; display:flex; justify-content:center; align-items:flex-start; height:calc(100vh - 220px); overflow:auto; }
+
+        #receipt {
+          width:210mm;
+          min-height:297mm;
+          background:white;
+          padding:20mm 18mm;
+          font-size:10.5pt;
+          line-height:1.5;
+          box-shadow:0 20px 60px rgba(0,0,0,.18);
+          transform:scale(0.92);
+          transform-origin:top left;
+        }
+        .receipt-header {
+            background:linear-gradient(135deg, var(--receipt-blue), #0c7fda);
+            color:white;
+            padding:20px 25px;
+            border-radius:16px;
+            margin-bottom:20px;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+        }
+        .company-logo img { height:120px; filter: brightness(1.05) contrast(1.1); }
+
+        .contact-box { background:rgba(255,255,255,.22); padding:18px 22px; border-radius:14px; text-align:right; font-size:10pt; }
+        .received-from-section { background:#f0f9ff; padding:18px 22px; border-radius:14px; border-left:6px solid var(--receipt-blue); display:flex; justify-content:space-between; margin-bottom:20px; font-size:10.5pt; }
+
+        .table-container { margin:25px 0; border-radius:16px; overflow:hidden; box-shadow:0 8px 25px rgba(0,0,0,.1); }
+        .table-header { background:var(--receipt-blue); color:white; padding:16px 20px; display:grid; grid-template-columns:40px 1fr 110px 80px 120px; gap:15px; font-weight:600; font-size:10.5pt; }
+        .table-item-row { display:grid; grid-template-columns:40px 1fr 110px 80px 120px; gap:15px; padding:16px 20px; background:#f8fbff; border-bottom:1px solid #eee; align-items:center; }
+
+        .summary-section { display:grid; grid-template-columns:1fr 320px; gap:30px; margin-top:30px; }
+        .payment-method, .summary-totals { background:white; padding:22px; border-radius:16px; box-shadow:0 6px 20px rgba(0,0,0,.08); font-size:10.5pt; }
+
+        .balance-row {
+            background:#f0f9ff;
+            padding:12px 16px;
+            border-radius:10px;
+            margin:10px 0;
+            font-weight:600;
+        }
+        .total-btn {
+            background:var(--receipt-blue);
+            color:white;
+            padding:20px;
+            border-radius:14px;
+            text-align:center;
+            font-size:1.6rem;
+            font-weight:800;
+            margin-top:15px;
+        }
+        .signature-section { margin-top:40px; text-align:right; }
+        .signature-img { height:70px; border-top:3px solid var(--receipt-blue); padding-top:12px; }
+        .footer { background:var(--receipt-blue); color:white; padding:20px; text-align:center; font-size:1.2rem; font-weight:600; border-radius:16px; margin-top:40px; }
+
+        /* =============== MOBILE RESPONSIVE =============== */
+@media (max-width: 1024px) {
+    .container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        padding: 15px;
+    }
+
+    .form-panel, .preview-panel {
+        width: 100%;
+        border-radius: 20px;
+    }
+
+    .form-header h1 {
+        font-size: 2.1rem;
+    }
+
+    .form-body {
+        padding: 25px;
+    }
+
+    .preview-body {
+        height: 520px;
+        padding: 20px;
+    }
+
+    #receipt {
+        width: 100%;
+        max-width: 380px;
+        min-height: auto;
+        padding: 18mm 12mm;
+        transform: scale(0.85);
+        transform-origin: top center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }
+
+    .receipt-header {
+        padding: 15px 18px;
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+
+    .company-logo img {
+        height: 85px;
+    }
+
+    .contact-box {
+        text-align: center;
+        width: 100%;
+    }
+
+    .received-from-section {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+
+    .table-header,
+    .table-item-row {
+        grid-template-columns: 35px 1fr 85px 55px 95px;
+        gap: 8px;
+        font-size: 9.5pt;
+        padding: 12px 14px;
+    }
+
+    .summary-section {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    .items-table th,
+    .items-table td {
+        padding: 12px 10px;
+    }
+
+    .btn-generate {
+        padding: 18px;
+        font-size: 1.2rem;
+    }
+
+    .btn-add {
+        padding: 14px 24px;
+    }
+
+    .amount-paid {
+        padding: 16px;
+    }
+}
+
+/* Extra small phones */
+@media (max-width: 480px) {
+    .container {
+        padding: 10px;
+    }
+
+    .form-body, .preview-body {
+        padding: 18px;
+    }
+
+    #receipt {
+        max-width: 340px;
+        padding: 15mm 10mm;
+        transform: scale(0.78);
+    }
+
+    .table-header,
+    .table-item-row {
+        grid-template-columns: 30px 1fr 70px 50px 85px;
+        font-size: 9pt;
+    }
+
+    .form-header h1 {
+        font-size: 1.85rem;
+    }
+
+    .preview-header h1 {
+        font-size: 1.4rem;
+    }
+}
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="form-panel">
+        <div class="form-header"><h1>THEE FURNITURE GUY</h1><p>Professional Receipt System</p></div>
+        <div class="form-body">
+            <!-- ... (All previous form content remains the same) ... -->
+            <div class="currency-selector">
+                <button class="currency-btn active" data-currency="USD">USD</button>
+                <button class="currency-btn" data-currency="UGX">UGX</button>
+            </div>
+
+            <div class="form-row">
+                <div><label>Payment By</label><input type="text" id="clientName" placeholder="Enter name"></div>
+                <div><label>Company / Title</label><input type="text" id="clientCompany" placeholder="e.g. VVN Ltd."></div>
+            </div>
+            <div><label>Contact</label><input type="text" id="clientContact" placeholder="+256 ..."></div>
+
+            <div class="form-row">
+                <div><label>Receipt Date</label><input type="date" id="receiptDate"></div>
+            </div>
+
+            <div class="amount-paid">
+                <label>Amount Paid by Customer</label>
+                <input type="number" id="amountPaid" placeholder="0.00" step="0.01" value="">
+            </div>
+
+            <div>
+                <label>Payment Method</label>
+                <div class="payment-options">
+                    <div class="payment-option selected" data-method="Cash">CASH</div>
+                    <div class="payment-option" data-method="Mobile Money">MOBILE MONEY</div>
+                    <div class="payment-option" data-method="Bank">BANK</div>
+                </div>
+            </div>
+
+            <h3 style="margin:35px 0 20px;font-size:1.5rem;">Items / Services</h3>
+            <table class="items-table" id="itemsTable">
+                <thead><tr><th>#</th><th>Description</th><th>Price</th><th>Qty</th><th>Total</th><th></th></tr></thead>
+                <tbody>
+                <tr>
+                    <td>1</td>
+                    <td><input type="text" class="desc" placeholder="e.g. Double seater sofa"></td>
+                    <td><input type="number" class="price" placeholder="0" value="" data-usd="0" data-ugx="0"></td>
+                    <td><input type="number" class="qty" value="1" min="1"></td>
+                    <td class="total">-</td>
+                    <td><button class="delete-btn">×</button></td>
+                </tr>
+                </tbody>
+            </table>
+            <button class="btn btn-add" id="addRowBtn">+ Add Item</button>
+            <button class="btn btn-generate" id="generateBtn">Generate & Download Receipt PDF</button>
+        </div>
+    </div>
+
+    <div class="preview-panel">
+        <div class="preview-header"><h1>Live Preview</h1><p>Customer View</p></div>
+        <div class="preview-body">
+            <div id="receipt">
+                <!-- Receipt content remains the same as previous version -->
+                <div class="receipt-header">
+                    <div class="company-logo"><img src="logo.png" alt="Logo"></div>
+                    <div class="contact-box">
+                        <div style="font-weight:600;margin-bottom:8px;">IGANGA</div>
+                        <div>Igamba Village<br>+256766489984/+256776249231</div>
+                    </div>
+                </div>
+
+                <div class="received-from-section">
+                    <div>
+                        <strong style="color:var(--receipt-blue);">Payment By</strong><br>
+                        <div id="prevClientName" style="font-weight:600;margin:8px 0;">Name</div>
+                        <div id="prevClientCompany">Company / Title</div>
+                        <div id="prevClientContact">Contact Number</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <strong style="color:var(--receipt-blue);">Receipt Date</strong><br>
+                        <span id="prevReceiptDate">-</span><br><br>
+                        <strong style="color:var(--receipt-blue);">Receipt #</strong><br>
+                        <span id="receiptNumber" style="font-size:1.6rem;font-weight:700;">TFG-R001</span>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header"><div>NO.</div><div>DESCRIPTION</div><div>PRICE</div><div>QTY</div><div>TOTAL</div></div>
+                    <div id="itemsPreview"></div>
+                </div>
+
+                <div class="summary-section">
+                    <div class="payment-method">
+                        <strong style="color:var(--receipt-blue);">PAYMENT METHOD</strong>
+                        <div id="paymentMethodDisplay" style="margin:15px 0;font-weight:600;white-space:pre-line;">CASH</div>
+                    </div>
+
+                    <div class="summary-totals">
+                        <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #eee;">
+                            <span>Subtotal</span><span id="subtotal">$0.00</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #eee;">
+                            <span>Amount Paid</span><span id="amountPaidPreview">$0.00</span>
+                        </div>
+                        <div class="balance-row" id="balanceRow">
+                            <div style="display:flex;justify-content:space-between;">
+                                <span id="balanceLabel">Balance Due</span>
+                                <span id="balanceAmount" style="font-weight:700;">$0.00</span>
+                            </div>
+                        </div>
+                        <div class="total-btn">Total Due <span id="total">$0.00</span></div>
+                    </div>
+                </div>
+
+                <div class="signature-section">
+                    <img class="signature-img" src="sign.png" alt="Signature">
+                    <div style="margin-top:8px;font-weight:600;">Muwanguzi Timothy</div>
+                    <div style="margin-top:8px;font-weight:600;">(Director)</div>
+                </div>
+                <div class="footer">Thank You for Your Business!</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const { jsPDF } = window.jspdf;
+    let currentCurrency = 'USD';
+    let selectedPayment = 'Cash';
+    let receiptCounter = localStorage.getItem('receiptCounter') ? parseInt(localStorage.getItem('receiptCounter')) : 1;
+
+    function formatDisplay(amount) {
+        return currentCurrency === 'USD'
+            ? '$' + parseFloat(amount).toFixed(2)
+            : 'UGX ' + Math.round(amount).toLocaleString();
+    }
+
+    function updatePreview() {
+        // ... (Same updatePreview function as before - unchanged) ...
+        let subtotal = 0;
+        let itemsHTML = '';
+
+        document.querySelectorAll('#itemsTable tbody tr').forEach((row, i) => {
+            const priceInput = row.querySelector('.price');
+            const qty = parseFloat(row.querySelector('.qty').value) || 1;
+            let price = parseFloat(priceInput.dataset[currentCurrency.toLowerCase()]) || 0;
+            const total = price * qty;
+            subtotal += total;
+
+            const desc = row.querySelector('.desc').value.trim() || '—';
+            const displayPrice = price > 0 ? formatDisplay(price) : '—';
+            const displayTotal = total > 0 ? formatDisplay(total) : '—';
+
+            row.querySelector('.total').textContent = displayTotal;
+
+            itemsHTML += `<div class="table-item-row">
+                <div>${i + 1}.</div>
+                <div style="font-weight:500;">${desc}</div>
+                <div>${displayPrice}</div>
+                <div style="text-align:center;">${qty}</div>
+                <div style="font-weight:600;">${displayTotal}</div>
+            </div>`;
+        });
+
+        const amountPaid = parseFloat(document.getElementById('amountPaid').value) || 0;
+        const balance = subtotal - amountPaid;
+
+        document.getElementById('subtotal').textContent = formatDisplay(subtotal);
+        document.getElementById('total').textContent = formatDisplay(subtotal);
+        document.getElementById('amountPaidPreview').textContent = formatDisplay(amountPaid);
+
+        const balanceEl = document.getElementById('balanceAmount');
+        const balanceLabel = document.getElementById('balanceLabel');
+
+        if (balance > 0) {
+            balanceLabel.textContent = "Balance Due";
+            balanceEl.style.color = "#ef4444";
+            balanceEl.textContent = formatDisplay(balance);
+        } else if (balance < 0) {
+            balanceLabel.textContent = "Change";
+            balanceEl.style.color = "#10b981";
+            balanceEl.textContent = formatDisplay(Math.abs(balance));
+        } else {
+            balanceLabel.textContent = "Paid in Full";
+            balanceEl.style.color = "#10b981";
+            balanceEl.textContent = "✓";
+        }
+
+        document.getElementById('itemsPreview').innerHTML = itemsHTML || '<div style="padding:40px;text-align:center;color:#ccc;">Start adding items</div>';
+
+        document.getElementById('prevClientName').textContent = document.getElementById('clientName').value || 'Name';
+        document.getElementById('prevClientCompany').textContent = document.getElementById('clientCompany').value || 'Company / Title';
+        document.getElementById('prevClientContact').textContent = document.getElementById('clientContact').value || 'Contact Number';
+
+        const recDate = document.getElementById('receiptDate').value;
+        document.getElementById('prevReceiptDate').textContent = recDate ? new Date(recDate).toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'}) : '-';
+        document.getElementById('receiptNumber').textContent = 'TFG-R' + String(receiptCounter).padStart(3, '0');
+
+        document.getElementById('paymentMethodDisplay').textContent = selectedPayment || 'CASH';
+    }
+
+    // Generate PDF - FIXED VERSION
+    document.getElementById('generateBtn').addEventListener('click', async () => {
+        const btn = document.getElementById('generateBtn');
+        btn.disabled = true;
+        btn.textContent = "Generating PDF...";
+
+        try {
+            updatePreview();
+
+            const element = document.getElementById('receipt');
+            const originalTransform = element.style.transform;
+            element.style.transform = 'scale(1)';
+
+            // Wait a bit for rendering
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+            const canvas = await html2canvas(element, {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: '#ffffff',
+                logging: false
+            });
+
+            const imgData = canvas.toDataURL('image/png', 1.0);
+
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const width = pdf.internal.pageSize.getWidth();
+            const height = pdf.internal.pageSize.getHeight();
+
+            pdf.addImage(imgData, 'PNG', 0, 0, width, height);
+
+            const fileName = `Receipt_TFG-R${String(receiptCounter).padStart(3,'0')}_${(document.getElementById('clientCompany').value || 'Client').replace(/[^a-z0-9]/gi,'_')}.pdf`;
+            pdf.save(fileName);
+
+            console.log("✅ PDF Downloaded successfully:", fileName);
+
+            // Reset
+            element.style.transform = originalTransform;
+            receiptCounter++;
+            localStorage.setItem('receiptCounter', receiptCounter);
+
+        } catch (error) {
+            console.error("❌ PDF Generation Error:", error);
+            alert("Error generating PDF. Please check console (F12) for details.");
+        } finally {
+            btn.disabled = false;
+            btn.textContent = "Generate & Download Receipt PDF";
+        }
+    });
+
+    // Rest of your script (currency switch, add row, delete, etc.) remains the same
+    // ... (Copy the rest from the previous version) ...
+
+    document.querySelectorAll('.currency-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const newCurrency = btn.dataset.currency;
+            if (newCurrency === currentCurrency) return;
+
+            document.querySelectorAll('.currency-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentCurrency = newCurrency;
+
+            document.querySelectorAll('.price').forEach(input => {
+                const value = parseFloat(input.dataset[currentCurrency.toLowerCase()]) || 0;
+                input.value = value > 0 ? value : '';
+            });
+
+            updatePreview();
+        });
+    });
+
+    document.getElementById('itemsTable').addEventListener('input', e => {
+        if (e.target.classList.contains('price')) {
+            const input = e.target;
+            const value = parseFloat(input.value) || 0;
+            input.dataset[currentCurrency.toLowerCase()] = value;
+        }
+        updatePreview();
+    });
+
+    document.getElementById('amountPaid').addEventListener('input', updatePreview);
+
+    document.getElementById('addRowBtn').addEventListener('click', () => {
+        const tbody = document.querySelector('#itemsTable tbody');
+        const row = tbody.insertRow();
+        const index = tbody.rows.length;
+        row.innerHTML = `<td>${index}</td>
+            <td><input type="text" class="desc" placeholder="Description"></td>
+            <td><input type="number" class="price" placeholder="0" value="" data-usd="0" data-ugx="0"></td>
+            <td><input type="number" class="qty" value="1" min="1"></td>
+            <td class="total">-</td>
+            <td><button class="delete-btn">×</button></td>`;
+        updatePreview();
+    });
+
+    document.getElementById('itemsTable').addEventListener('click', e => {
+        if (e.target.classList.contains('delete-btn') && document.querySelectorAll('#itemsTable tbody tr').length > 1) {
+            e.target.closest('tr').remove();
+            document.querySelectorAll('#itemsTable tbody tr').forEach((r,i) => r.cells[0].textContent = i+1);
+            updatePreview();
+        }
+    });
+
+    document.querySelectorAll('.payment-option').forEach(o => o.addEventListener('click', () => {
+        document.querySelectorAll('.payment-option').forEach(x => x.classList.remove('selected'));
+        o.classList.add('selected');
+        selectedPayment = o.dataset.method;
+        updatePreview();
+    }));
+
+    // Initialize
+    document.getElementById('receiptDate').valueAsDate = new Date();
+    updatePreview();
+</script>
+</body>
+</html>
