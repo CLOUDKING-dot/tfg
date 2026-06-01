@@ -138,130 +138,67 @@
         .footer { background:var(--receipt-blue); color:white; padding:20px; text-align:center; font-size:1.2rem; font-weight:600; border-radius:16px; margin-top:40px; }
 
         /* =============== MOBILE RESPONSIVE =============== */
-@media (max-width: 1024px) {
-    .container {
-        grid-template-columns: 1fr;
-        gap: 20px;
-        padding: 15px;
-    }
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 15px;
+            }
+            .form-panel, .preview-panel {
+                width: 100%;
+                border-radius: 20px;
+            }
+            .form-header h1 { font-size: 2.1rem; }
+            .form-body { padding: 25px; }
+            .preview-body {
+                height: 520px;
+                padding: 20px;
+            }
+            #receipt {
+                width: 100%;
+                max-width: 380px;
+                min-height: auto;
+                padding: 18mm 12mm;
+                transform: scale(0.85);
+                transform-origin: top center;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            }
+            .receipt-header {
+                padding: 15px 18px;
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            .company-logo img { height: 85px; }
+            .contact-box { text-align: center; width: 100%; }
+            .received-from-section {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            .table-header, .table-item-row {
+                grid-template-columns: 35px 1fr 85px 55px 95px;
+                gap: 8px;
+                font-size: 9.5pt;
+                padding: 12px 14px;
+            }
+            .summary-section { grid-template-columns: 1fr; gap: 20px; }
+            .form-row { grid-template-columns: 1fr; gap: 18px; }
+        }
 
-    .form-panel, .preview-panel {
-        width: 100%;
-        border-radius: 20px;
-    }
-
-    .form-header h1 {
-        font-size: 2.1rem;
-    }
-
-    .form-body {
-        padding: 25px;
-    }
-
-    .preview-body {
-        height: 520px;
-        padding: 20px;
-    }
-
-    #receipt {
-        width: 100%;
-        max-width: 380px;
-        min-height: auto;
-        padding: 18mm 12mm;
-        transform: scale(0.85);
-        transform-origin: top center;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-    }
-
-    .receipt-header {
-        padding: 15px 18px;
-        flex-direction: column;
-        gap: 15px;
-        text-align: center;
-    }
-
-    .company-logo img {
-        height: 85px;
-    }
-
-    .contact-box {
-        text-align: center;
-        width: 100%;
-    }
-
-    .received-from-section {
-        flex-direction: column;
-        gap: 15px;
-        text-align: center;
-    }
-
-    .table-header,
-    .table-item-row {
-        grid-template-columns: 35px 1fr 85px 55px 95px;
-        gap: 8px;
-        font-size: 9.5pt;
-        padding: 12px 14px;
-    }
-
-    .summary-section {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-
-    .form-row {
-        grid-template-columns: 1fr;
-        gap: 18px;
-    }
-
-    .items-table th,
-    .items-table td {
-        padding: 12px 10px;
-    }
-
-    .btn-generate {
-        padding: 18px;
-        font-size: 1.2rem;
-    }
-
-    .btn-add {
-        padding: 14px 24px;
-    }
-
-    .amount-paid {
-        padding: 16px;
-    }
-}
-
-/* Extra small phones */
-@media (max-width: 480px) {
-    .container {
-        padding: 10px;
-    }
-
-    .form-body, .preview-body {
-        padding: 18px;
-    }
-
-    #receipt {
-        max-width: 340px;
-        padding: 15mm 10mm;
-        transform: scale(0.78);
-    }
-
-    .table-header,
-    .table-item-row {
-        grid-template-columns: 30px 1fr 70px 50px 85px;
-        font-size: 9pt;
-    }
-
-    .form-header h1 {
-        font-size: 1.85rem;
-    }
-
-    .preview-header h1 {
-        font-size: 1.4rem;
-    }
-}
+        @media (max-width: 480px) {
+            .container { padding: 10px; }
+            .form-body, .preview-body { padding: 18px; }
+            #receipt {
+                max-width: 340px;
+                padding: 15mm 10mm;
+                transform: scale(0.78);
+            }
+            .table-header, .table-item-row {
+                grid-template-columns: 30px 1fr 70px 50px 85px;
+                font-size: 9pt;
+            }
+        }
     </style>
 </head>
 <body>
@@ -269,7 +206,6 @@
     <div class="form-panel">
         <div class="form-header"><h1>THEE FURNITURE GUY</h1><p>Professional Receipt System</p></div>
         <div class="form-body">
-            <!-- ... (All previous form content remains the same) ... -->
             <div class="currency-selector">
                 <button class="currency-btn active" data-currency="USD">USD</button>
                 <button class="currency-btn" data-currency="UGX">UGX</button>
@@ -322,7 +258,6 @@
         <div class="preview-header"><h1>Live Preview</h1><p>Customer View</p></div>
         <div class="preview-body">
             <div id="receipt">
-                <!-- Receipt content remains the same as previous version -->
                 <div class="receipt-header">
                     <div class="company-logo"><img src="logo.png" alt="Logo"></div>
                     <div class="contact-box">
@@ -398,7 +333,6 @@
     }
 
     function updatePreview() {
-        // ... (Same updatePreview function as before - unchanged) ...
         let subtotal = 0;
         let itemsHTML = '';
 
@@ -461,7 +395,7 @@
         document.getElementById('paymentMethodDisplay').textContent = selectedPayment || 'CASH';
     }
 
-    // Generate PDF - FIXED VERSION
+    // ==================== FIXED PDF GENERATION ====================
     document.getElementById('generateBtn').addEventListener('click', async () => {
         const btn = document.getElementById('generateBtn');
         btn.disabled = true;
@@ -471,49 +405,62 @@
             updatePreview();
 
             const element = document.getElementById('receipt');
+            
+            // Save original styles
             const originalTransform = element.style.transform;
-            element.style.transform = 'scale(1)';
+            const originalWidth = element.style.width;
+            const originalMaxWidth = element.style.maxWidth;
+            const originalPadding = element.style.padding;
 
-            // Wait a bit for rendering
-            await new Promise(resolve => setTimeout(resolve, 100));
+            // Force desktop/A4 size for PDF
+            element.style.transform = 'scale(1)';
+            element.style.width = '210mm';
+            element.style.maxWidth = '210mm';
+            element.style.padding = '20mm 18mm';
+            element.style.minHeight = '297mm';
+
+            await new Promise(r => setTimeout(r, 200));
 
             const canvas = await html2canvas(element, {
-                scale: 2,
+                scale: 2.8,
                 useCORS: true,
                 backgroundColor: '#ffffff',
                 logging: false
             });
 
             const imgData = canvas.toDataURL('image/png', 1.0);
-
+            
             const pdf = new jsPDF('p', 'mm', 'a4');
-            const width = pdf.internal.pageSize.getWidth();
-            const height = pdf.internal.pageSize.getHeight();
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
 
-            pdf.addImage(imgData, 'PNG', 0, 0, width, height);
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
 
             const fileName = `Receipt_TFG-R${String(receiptCounter).padStart(3,'0')}_${(document.getElementById('clientCompany').value || 'Client').replace(/[^a-z0-9]/gi,'_')}.pdf`;
             pdf.save(fileName);
 
-            console.log("✅ PDF Downloaded successfully:", fileName);
-
-            // Reset
-            element.style.transform = originalTransform;
-            receiptCounter++;
-            localStorage.setItem('receiptCounter', receiptCounter);
+            alert("✅ Receipt PDF downloaded successfully!");
 
         } catch (error) {
-            console.error("❌ PDF Generation Error:", error);
-            alert("Error generating PDF. Please check console (F12) for details.");
+            console.error("PDF Error:", error);
+            alert("Failed to generate PDF. Please try again.");
         } finally {
+            // Restore mobile styles
+            const element = document.getElementById('receipt');
+            element.style.transform = originalTransform;
+            element.style.width = originalWidth;
+            element.style.maxWidth = originalMaxWidth || '';
+            element.style.padding = originalPadding || '20mm 18mm';
+
             btn.disabled = false;
             btn.textContent = "Generate & Download Receipt PDF";
+
+            receiptCounter++;
+            localStorage.setItem('receiptCounter', receiptCounter);
         }
     });
 
-    // Rest of your script (currency switch, add row, delete, etc.) remains the same
-    // ... (Copy the rest from the previous version) ...
-
+    // Currency Switch
     document.querySelectorAll('.currency-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const newCurrency = btn.dataset.currency;
@@ -532,6 +479,7 @@
         });
     });
 
+    // Input listeners
     document.getElementById('itemsTable').addEventListener('input', e => {
         if (e.target.classList.contains('price')) {
             const input = e.target;
@@ -543,6 +491,7 @@
 
     document.getElementById('amountPaid').addEventListener('input', updatePreview);
 
+    // Add Row
     document.getElementById('addRowBtn').addEventListener('click', () => {
         const tbody = document.querySelector('#itemsTable tbody');
         const row = tbody.insertRow();
@@ -556,6 +505,7 @@
         updatePreview();
     });
 
+    // Delete Row
     document.getElementById('itemsTable').addEventListener('click', e => {
         if (e.target.classList.contains('delete-btn') && document.querySelectorAll('#itemsTable tbody tr').length > 1) {
             e.target.closest('tr').remove();
@@ -564,6 +514,7 @@
         }
     });
 
+    // Payment Method
     document.querySelectorAll('.payment-option').forEach(o => o.addEventListener('click', () => {
         document.querySelectorAll('.payment-option').forEach(x => x.classList.remove('selected'));
         o.classList.add('selected');
