@@ -462,50 +462,63 @@
     }
 
     // Generate PDF - FIXED VERSION
-    document.getElementById('generateBtn').addEventListener('click', async () => {
+   document.getElementById('generateBtn').addEventListener('click', async () => {
         const btn = document.getElementById('generateBtn');
         btn.disabled = true;
         btn.textContent = "Generating PDF...";
 
+        const receiptEl = document.getElementById('receipt');
+        const originalStyles = {
+            width: receiptEl.style.width,
+            maxWidth: receiptEl.style.maxWidth,
+            padding: receiptEl.style.padding,
+            transform: receiptEl.style.transform,
+            transformOrigin: receiptEl.style.transformOrigin,
+            minHeight: receiptEl.style.minHeight
+        };
+
         try {
             updatePreview();
 
-            const element = document.getElementById('receipt');
-            const originalTransform = element.style.transform;
-            element.style.transform = 'scale(1)';
+            // === FORCE DESKTOP LAYOUT FOR CONSISTENT PDF ===
+            receiptEl.style.width = '210mm';
+            receiptEl.style.maxWidth = 'none';
+            receiptEl.style.padding = '20mm 18mm';
+            receiptEl.style.transform = 'scale(1)';
+            receiptEl.style.transformOrigin = 'top left';
+            receiptEl.style.minHeight = '297mm';
 
-            // Wait a bit for rendering
-            await new Promise(resolve => setTimeout(resolve, 100));
+            // Small delay for layout reflow
+            await new Promise(resolve => setTimeout(resolve, 120));
 
-            const canvas = await html2canvas(element, {
-                scale: 2,
+            const canvas = await html2canvas(receiptEl, {
+                scale: 2.5,           // Higher quality
                 useCORS: true,
                 backgroundColor: '#ffffff',
-                logging: false
+                logging: false,
+                width: 794,           // ≈ 210mm at 96dpi
+                height: 1123          // ≈ 297mm
             });
 
             const imgData = canvas.toDataURL('image/png', 1.0);
-
             const pdf = new jsPDF('p', 'mm', 'a4');
-            const width = pdf.internal.pageSize.getWidth();
-            const height = pdf.internal.pageSize.getHeight();
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
 
-            pdf.addImage(imgData, 'PNG', 0, 0, width, height);
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
 
             const fileName = `Receipt_TFG-R${String(receiptCounter).padStart(3,'0')}_${(document.getElementById('clientCompany').value || 'Client').replace(/[^a-z0-9]/gi,'_')}.pdf`;
             pdf.save(fileName);
 
-            console.log("✅ PDF Downloaded successfully:", fileName);
-
-            // Reset
-            element.style.transform = originalTransform;
             receiptCounter++;
             localStorage.setItem('receiptCounter', receiptCounter);
 
         } catch (error) {
-            console.error("❌ PDF Generation Error:", error);
-            alert("Error generating PDF. Please check console (F12) for details.");
+            console.error("PDF Generation Error:", error);
+            alert("Error generating PDF. Check console for details.");
         } finally {
+            // Restore original styles (mobile or desktop)
+            Object.assign(receiptEl.style, originalStyles);
             btn.disabled = false;
             btn.textContent = "Generate & Download Receipt PDF";
         }
