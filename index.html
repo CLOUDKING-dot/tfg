@@ -262,45 +262,6 @@
         font-size: 1.4rem;
     }
 }
-/* Force desktop receipt style during PDF generation */
-#receipt.pdf-generation-mode {
-    width: 210mm !important;
-    min-height: 297mm !important;
-    padding: 20mm 18mm !important;
-    transform: scale(1) !important;
-    transform-origin: top left !important;
-    box-shadow: none !important;
-}
-
-/* Override mobile styles when in PDF mode */
-@media (max-width: 1024px) {
-    #receipt.pdf-generation-mode .table-header,
-    #receipt.pdf-generation-mode .table-item-row {
-        grid-template-columns: 40px 1fr 110px 80px 120px !important;
-        gap: 15px !important;
-        font-size: 10.5pt !important;
-        padding: 16px 20px !important;
-    }
-
-    #receipt.pdf-generation-mode .receipt-header {
-        padding: 20px 25px !important;
-        flex-direction: row !important;
-        text-align: left !important;
-    }
-
-    #receipt.pdf-generation-mode .company-logo img {
-        height: 120px !important;
-    }
-
-    #receipt.pdf-generation-mode .contact-box {
-        text-align: right !important;
-    }
-
-    #receipt.pdf-generation-mode .received-from-section {
-        flex-direction: row !important;
-        text-align: left !important;
-    }
-}
     </style>
 </head>
 <body>
@@ -502,66 +463,53 @@
 
     // Generate PDF - FIXED VERSION
     document.getElementById('generateBtn').addEventListener('click', async () => {
-    const btn = document.getElementById('generateBtn');
-    btn.disabled = true;
-    btn.textContent = "Generating PDF...";
+        const btn = document.getElementById('generateBtn');
+        btn.disabled = true;
+        btn.textContent = "Generating PDF...";
 
-    const receipt = document.getElementById('receipt');
-    const originalTransform = receipt.style.transform;
-    const originalWidth = receipt.style.width;
-    const originalMinHeight = receipt.style.minHeight;
+        try {
+            updatePreview();
 
-    try {
-        // === FORCE DESKTOP RECEIPT STYLE ===
-        receipt.classList.add('pdf-generation-mode');
+            const element = document.getElementById('receipt');
+            const originalTransform = element.style.transform;
+            element.style.transform = 'scale(1)';
 
-        // Temporarily force desktop dimensions
-        receipt.style.transform = 'scale(1)';
-        receipt.style.width = '210mm';
-        receipt.style.minHeight = '297mm';
-        receipt.style.padding = '20mm 18mm';   // Desktop padding
+            // Wait a bit for rendering
+            await new Promise(resolve => setTimeout(resolve, 100));
 
-        // Give browser time to re-render with desktop styles
-        await new Promise(r => setTimeout(r, 150));
+            const canvas = await html2canvas(element, {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: '#ffffff',
+                logging: false
+            });
 
-        updatePreview(); // Make sure content is up to date
+            const imgData = canvas.toDataURL('image/png', 1.0);
 
-        const canvas = await html2canvas(receipt, {
-            scale: 2.5,           // Higher scale for sharper PDF
-            useCORS: true,
-            backgroundColor: '#ffffff',
-            logging: false,
-            width: receipt.offsetWidth,
-            height: receipt.offsetHeight
-        });
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const width = pdf.internal.pageSize.getWidth();
+            const height = pdf.internal.pageSize.getHeight();
 
-        const imgData = canvas.toDataURL('image/png', 1.0);
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight();
+            pdf.addImage(imgData, 'PNG', 0, 0, width, height);
 
-        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            const fileName = `Receipt_TFG-R${String(receiptCounter).padStart(3,'0')}_${(document.getElementById('clientCompany').value || 'Client').replace(/[^a-z0-9]/gi,'_')}.pdf`;
+            pdf.save(fileName);
 
-        const fileName = `Receipt_TFG-R${String(receiptCounter).padStart(3,'0')}_${(document.getElementById('clientCompany').value || 'Client').replace(/[^a-z0-9]/gi,'_')}.pdf`;
-        pdf.save(fileName);
+            console.log("✅ PDF Downloaded successfully:", fileName);
 
-        receiptCounter++;
-        localStorage.setItem('receiptCounter', receiptCounter);
+            // Reset
+            element.style.transform = originalTransform;
+            receiptCounter++;
+            localStorage.setItem('receiptCounter', receiptCounter);
 
-    } catch (error) {
-        console.error("PDF Generation Error:", error);
-        alert("Error generating PDF. Check console for details.");
-    } finally {
-        // === RESTORE ORIGINAL STATE ===
-        receipt.classList.remove('pdf-generation-mode');
-        receipt.style.transform = originalTransform;
-        receipt.style.width = originalWidth;
-        receipt.style.minHeight = originalMinHeight;
-
-        btn.disabled = false;
-        btn.textContent = "Generate & Download Receipt PDF";
-    }
-});
+        } catch (error) {
+            console.error("❌ PDF Generation Error:", error);
+            alert("Error generating PDF. Please check console (F12) for details.");
+        } finally {
+            btn.disabled = false;
+            btn.textContent = "Generate & Download Receipt PDF";
+        }
+    });
 
     // Rest of your script (currency switch, add row, delete, etc.) remains the same
     // ... (Copy the rest from the previous version) ...
