@@ -35,7 +35,12 @@
           padding:30px;
         }
         .form-panel { background:white; border-radius:28px; box-shadow:var(--shadow); overflow:hidden; }
-        .form-header { background:linear-gradient(135deg,var(--primary),var(--primary-dark)); color:white; padding:40px; text-align:center; }
+        .form-header {
+            background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+            color:white;
+            padding:40px;
+            text-align:center;
+        }
         .form-header h1 { font-size:2.6rem; font-weight:800; margin-bottom:8px; }
         .form-body { padding:40px; }
         .form-row { display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:24px; }
@@ -63,14 +68,21 @@
 
         .btn { padding:16px 32px; border:none; border-radius:16px; font-weight:700; cursor:pointer; font-size:1.1rem; transition:all .3s; }
         .btn-add { background:var(--success); color:white; margin-right:12px; }
-        .btn-generate { background:linear-gradient(135deg,var(--primary),var(--primary-dark)); color:white; width:100%; padding:22px; font-size:1.35rem; margin-top:30px; box-shadow:0 12px 30px rgba(12,127,218,.4); }
+        .btn-generate {
+            background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+            color:white;
+            width:100%;
+            padding:22px;
+            font-size:1.35rem;
+            margin-top:30px;
+            box-shadow:0 12px 30px rgba(12,127,218,.4);
+        }
         .btn-generate:disabled { opacity:0.7; cursor:not-allowed; }
 
         .preview-panel { background:white; border-radius:28px; box-shadow:var(--shadow); overflow:hidden; }
         .preview-header { background:linear-gradient(135deg,#1e293b,#334155); color:white; padding:30px; text-align:center; }
         .preview-body { padding:30px; background:#f0f9ff; display:flex; justify-content:center; align-items:flex-start; height:calc(100vh - 220px); overflow:auto; }
 
-        /* Desktop Receipt Style */
         #receipt {
           width:210mm;
           min-height:297mm;
@@ -82,8 +94,18 @@
           transform:scale(0.92);
           transform-origin:top left;
         }
-        .receipt-header { background:linear-gradient(135deg, var(--receipt-blue), #0c7fda); color:white; padding:20px 25px; border-radius:16px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; }
+        .receipt-header {
+            background:linear-gradient(135deg, var(--receipt-blue), #0c7fda);
+            color:white;
+            padding:20px 25px;
+            border-radius:16px;
+            margin-bottom:20px;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+        }
         .company-logo img { height:120px; filter: brightness(1.05) contrast(1.1); }
+
         .contact-box { background:rgba(255,255,255,.22); padding:18px 22px; border-radius:14px; text-align:right; font-size:10pt; }
         .received-from-section { background:#f0f9ff; padding:18px 22px; border-radius:14px; border-left:6px solid var(--receipt-blue); display:flex; justify-content:space-between; margin-bottom:20px; font-size:10.5pt; }
 
@@ -94,33 +116,191 @@
         .summary-section { display:grid; grid-template-columns:1fr 320px; gap:30px; margin-top:30px; }
         .payment-method, .summary-totals { background:white; padding:22px; border-radius:16px; box-shadow:0 6px 20px rgba(0,0,0,.08); font-size:10.5pt; }
 
-        .balance-row { background:#f0f9ff; padding:12px 16px; border-radius:10px; margin:10px 0; font-weight:600; }
-        .total-btn { background:var(--receipt-blue); color:white; padding:20px; border-radius:14px; text-align:center; font-size:1.6rem; font-weight:800; margin-top:15px; }
+        .balance-row {
+            background:#f0f9ff;
+            padding:12px 16px;
+            border-radius:10px;
+            margin:10px 0;
+            font-weight:600;
+        }
+        .total-btn {
+            background:var(--receipt-blue);
+            color:white;
+            padding:20px;
+            border-radius:14px;
+            text-align:center;
+            font-size:1.6rem;
+            font-weight:800;
+            margin-top:15px;
+        }
         .signature-section { margin-top:40px; text-align:right; }
         .signature-img { height:70px; border-top:3px solid var(--receipt-blue); padding-top:12px; }
         .footer { background:var(--receipt-blue); color:white; padding:20px; text-align:center; font-size:1.2rem; font-weight:600; border-radius:16px; margin-top:40px; }
 
         /* =============== MOBILE RESPONSIVE =============== */
-        @media (max-width: 1024px) {
-            .container { grid-template-columns: 1fr; gap: 20px; padding: 15px; }
-            .form-body { padding: 25px; }
-            .preview-body { height: 520px; padding: 20px; }
-            #receipt { max-width: 380px; padding: 18mm 12mm; transform: scale(0.85); transform-origin: top center; }
-            .receipt-header { flex-direction: column; gap: 15px; text-align: center; padding: 15px 18px; }
-            .company-logo img { height: 85px; }
-            .contact-box { text-align: center; width: 100%; }
-            .received-from-section { flex-direction: column; gap: 15px; text-align: center; }
-            .table-header, .table-item-row { grid-template-columns: 35px 1fr 85px 55px 95px; gap: 8px; font-size: 9.5pt; padding: 12px 14px; }
-            .summary-section { grid-template-columns: 1fr; gap: 20px; }
-            .form-row { grid-template-columns: 1fr; gap: 18px; }
-        }
+@media (max-width: 1024px) {
+    .container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        padding: 15px;
+    }
 
-        @media (max-width: 480px) {
-            .container { padding: 10px; }
-            .form-body, .preview-body { padding: 18px; }
-            #receipt { max-width: 340px; padding: 15mm 10mm; transform: scale(0.78); }
-            .table-header, .table-item-row { grid-template-columns: 30px 1fr 70px 50px 85px; font-size: 9pt; }
-        }
+    .form-panel, .preview-panel {
+        width: 100%;
+        border-radius: 20px;
+    }
+
+    .form-header h1 {
+        font-size: 2.1rem;
+    }
+
+    .form-body {
+        padding: 25px;
+    }
+
+    .preview-body {
+        height: 520px;
+        padding: 20px;
+    }
+
+    #receipt {
+        width: 100%;
+        max-width: 380px;
+        min-height: auto;
+        padding: 18mm 12mm;
+        transform: scale(0.85);
+        transform-origin: top center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }
+
+    .receipt-header {
+        padding: 15px 18px;
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+
+    .company-logo img {
+        height: 85px;
+    }
+
+    .contact-box {
+        text-align: center;
+        width: 100%;
+    }
+
+    .received-from-section {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+
+    .table-header,
+    .table-item-row {
+        grid-template-columns: 35px 1fr 85px 55px 95px;
+        gap: 8px;
+        font-size: 9.5pt;
+        padding: 12px 14px;
+    }
+
+    .summary-section {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    .items-table th,
+    .items-table td {
+        padding: 12px 10px;
+    }
+
+    .btn-generate {
+        padding: 18px;
+        font-size: 1.2rem;
+    }
+
+    .btn-add {
+        padding: 14px 24px;
+    }
+
+    .amount-paid {
+        padding: 16px;
+    }
+}
+
+/* Extra small phones */
+@media (max-width: 480px) {
+    .container {
+        padding: 10px;
+    }
+
+    .form-body, .preview-body {
+        padding: 18px;
+    }
+
+    #receipt {
+        max-width: 340px;
+        padding: 15mm 10mm;
+        transform: scale(0.78);
+    }
+
+    .table-header,
+    .table-item-row {
+        grid-template-columns: 30px 1fr 70px 50px 85px;
+        font-size: 9pt;
+    }
+
+    .form-header h1 {
+        font-size: 1.85rem;
+    }
+
+    .preview-header h1 {
+        font-size: 1.4rem;
+    }
+}
+/* Force desktop receipt style during PDF generation */
+#receipt.pdf-generation-mode {
+    width: 210mm !important;
+    min-height: 297mm !important;
+    padding: 20mm 18mm !important;
+    transform: scale(1) !important;
+    transform-origin: top left !important;
+    box-shadow: none !important;
+}
+
+/* Override mobile styles when in PDF mode */
+@media (max-width: 1024px) {
+    #receipt.pdf-generation-mode .table-header,
+    #receipt.pdf-generation-mode .table-item-row {
+        grid-template-columns: 40px 1fr 110px 80px 120px !important;
+        gap: 15px !important;
+        font-size: 10.5pt !important;
+        padding: 16px 20px !important;
+    }
+
+    #receipt.pdf-generation-mode .receipt-header {
+        padding: 20px 25px !important;
+        flex-direction: row !important;
+        text-align: left !important;
+    }
+
+    #receipt.pdf-generation-mode .company-logo img {
+        height: 120px !important;
+    }
+
+    #receipt.pdf-generation-mode .contact-box {
+        text-align: right !important;
+    }
+
+    #receipt.pdf-generation-mode .received-from-section {
+        flex-direction: row !important;
+        text-align: left !important;
+    }
+}
     </style>
 </head>
 <body>
@@ -128,6 +308,7 @@
     <div class="form-panel">
         <div class="form-header"><h1>THEE FURNITURE GUY</h1><p>Professional Receipt System</p></div>
         <div class="form-body">
+            <!-- ... (All previous form content remains the same) ... -->
             <div class="currency-selector">
                 <button class="currency-btn active" data-currency="USD">USD</button>
                 <button class="currency-btn" data-currency="UGX">UGX</button>
@@ -180,11 +361,12 @@
         <div class="preview-header"><h1>Live Preview</h1><p>Customer View</p></div>
         <div class="preview-body">
             <div id="receipt">
+                <!-- Receipt content remains the same as previous version -->
                 <div class="receipt-header">
                     <div class="company-logo"><img src="logo.png" alt="Logo"></div>
                     <div class="contact-box">
                         <div style="font-weight:600;margin-bottom:8px;">IGANGA</div>
-                        <div>Igamba Village<br>+256766489984 / +256776249231</div>
+                        <div>Igamba Village<br>+256766489984/+256776249231</div>
                     </div>
                 </div>
 
@@ -213,7 +395,7 @@
                         <strong style="color:var(--receipt-blue);">PAYMENT METHOD</strong>
                         <div id="paymentMethodDisplay" style="margin:15px 0;font-weight:600;white-space:pre-line;">CASH</div>
                     </div>
-                    
+
                     <div class="summary-totals">
                         <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #eee;">
                             <span>Subtotal</span><span id="subtotal">$0.00</span>
@@ -255,6 +437,7 @@
     }
 
     function updatePreview() {
+        // ... (Same updatePreview function as before - unchanged) ...
         let subtotal = 0;
         let itemsHTML = '';
 
@@ -317,61 +500,77 @@
         document.getElementById('paymentMethodDisplay').textContent = selectedPayment || 'CASH';
     }
 
-    // Generate PDF - Forces Desktop Quality
+    // Generate PDF - FIXED VERSION
     document.getElementById('generateBtn').addEventListener('click', async () => {
-        const btn = document.getElementById('generateBtn');
-        btn.disabled = true;
-        btn.textContent = "Generating PDF...";
+    const btn = document.getElementById('generateBtn');
+    btn.disabled = true;
+    btn.textContent = "Generating PDF...";
 
-        const receipt = document.getElementById('receipt');
-        const originalStyle = receipt.style.cssText;
+    const receipt = document.getElementById('receipt');
+    const originalTransform = receipt.style.transform;
+    const originalWidth = receipt.style.width;
+    const originalMinHeight = receipt.style.minHeight;
 
-        try {
-            updatePreview();
+    try {
+        // === FORCE DESKTOP RECEIPT STYLE ===
+        receipt.classList.add('pdf-generation-mode');
 
-            // Force full desktop receipt for PDF
-            receipt.style.width = '210mm';
-            receipt.style.minHeight = '297mm';
-            receipt.style.padding = '20mm 18mm';
-            receipt.style.transform = 'scale(1)';
-            receipt.style.transformOrigin = 'top left';
-            receipt.style.boxShadow = 'none';
+        // Temporarily force desktop dimensions
+        receipt.style.transform = 'scale(1)';
+        receipt.style.width = '210mm';
+        receipt.style.minHeight = '297mm';
+        receipt.style.padding = '20mm 18mm';   // Desktop padding
 
-            await new Promise(r => setTimeout(r, 150));
+        // Give browser time to re-render with desktop styles
+        await new Promise(r => setTimeout(r, 150));
 
-            const canvas = await html2canvas(receipt, {
-                scale: 2.5,
-                useCORS: true,
-                backgroundColor: '#ffffff'
-            });
+        updatePreview(); // Make sure content is up to date
 
-            const imgData = canvas.toDataURL('image/png', 1.0);
-            const pdf = new jsPDF('p', 'mm', 'a4');
-            const width = pdf.internal.pageSize.getWidth();
-            const height = pdf.internal.pageSize.getHeight();
+        const canvas = await html2canvas(receipt, {
+            scale: 2.5,           // Higher scale for sharper PDF
+            useCORS: true,
+            backgroundColor: '#ffffff',
+            logging: false,
+            width: receipt.offsetWidth,
+            height: receipt.offsetHeight
+        });
 
-            pdf.addImage(imgData, 'PNG', 0, 0, width, height);
+        const imgData = canvas.toDataURL('image/png', 1.0);
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
 
-            const fileName = `Receipt_TFG-R${String(receiptCounter).padStart(3,'0')}_${(document.getElementById('clientCompany').value || 'Client').replace(/[^a-z0-9]/gi,'_')}.pdf`;
-            pdf.save(fileName);
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
 
-        } catch (error) {
-            console.error("PDF Error:", error);
-            alert("Error generating PDF. Please check console.");
-        } finally {
-            receipt.style.cssText = originalStyle;
-            btn.disabled = false;
-            btn.textContent = "Generate & Download Receipt PDF";
-            receiptCounter++;
-            localStorage.setItem('receiptCounter', receiptCounter);
-        }
-    });
+        const fileName = `Receipt_TFG-R${String(receiptCounter).padStart(3,'0')}_${(document.getElementById('clientCompany').value || 'Client').replace(/[^a-z0-9]/gi,'_')}.pdf`;
+        pdf.save(fileName);
 
-    // Currency Switch
+        receiptCounter++;
+        localStorage.setItem('receiptCounter', receiptCounter);
+
+    } catch (error) {
+        console.error("PDF Generation Error:", error);
+        alert("Error generating PDF. Check console for details.");
+    } finally {
+        // === RESTORE ORIGINAL STATE ===
+        receipt.classList.remove('pdf-generation-mode');
+        receipt.style.transform = originalTransform;
+        receipt.style.width = originalWidth;
+        receipt.style.minHeight = originalMinHeight;
+
+        btn.disabled = false;
+        btn.textContent = "Generate & Download Receipt PDF";
+    }
+});
+
+    // Rest of your script (currency switch, add row, delete, etc.) remains the same
+    // ... (Copy the rest from the previous version) ...
+
     document.querySelectorAll('.currency-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const newCurrency = btn.dataset.currency;
             if (newCurrency === currentCurrency) return;
+
             document.querySelectorAll('.currency-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             currentCurrency = newCurrency;
@@ -380,11 +579,11 @@
                 const value = parseFloat(input.dataset[currentCurrency.toLowerCase()]) || 0;
                 input.value = value > 0 ? value : '';
             });
+
             updatePreview();
         });
     });
 
-    // Event Listeners
     document.getElementById('itemsTable').addEventListener('input', e => {
         if (e.target.classList.contains('price')) {
             const input = e.target;
@@ -417,14 +616,12 @@
         }
     });
 
-    document.querySelectorAll('.payment-option').forEach(o => {
-        o.addEventListener('click', () => {
-            document.querySelectorAll('.payment-option').forEach(x => x.classList.remove('selected'));
-            o.classList.add('selected');
-            selectedPayment = o.dataset.method;
-            updatePreview();
-        });
-    });
+    document.querySelectorAll('.payment-option').forEach(o => o.addEventListener('click', () => {
+        document.querySelectorAll('.payment-option').forEach(x => x.classList.remove('selected'));
+        o.classList.add('selected');
+        selectedPayment = o.dataset.method;
+        updatePreview();
+    }));
 
     // Initialize
     document.getElementById('receiptDate').valueAsDate = new Date();
