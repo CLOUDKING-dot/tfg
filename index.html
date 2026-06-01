@@ -34,7 +34,12 @@
           gap:30px;
           padding:30px;
         }
-        .form-panel { background:white; border-radius:28px; box-shadow:var(--shadow); overflow:hidden; }
+        .form-panel, .preview-panel { 
+            background:white; 
+            border-radius:28px; 
+            box-shadow:var(--shadow); 
+            overflow:hidden; 
+        }
         .form-header {
             background:linear-gradient(135deg,var(--primary),var(--primary-dark));
             color:white;
@@ -83,6 +88,7 @@
         .preview-header { background:linear-gradient(135deg,#1e293b,#334155); color:white; padding:30px; text-align:center; }
         .preview-body { padding:30px; background:#f0f9ff; display:flex; justify-content:center; align-items:flex-start; height:calc(100vh - 220px); overflow:auto; }
 
+        /* DESKTOP RECEIPT STYLE - SINGLE SOURCE OF TRUTH */
         #receipt {
           width:210mm;
           min-height:297mm;
@@ -116,88 +122,32 @@
         .summary-section { display:grid; grid-template-columns:1fr 320px; gap:30px; margin-top:30px; }
         .payment-method, .summary-totals { background:white; padding:22px; border-radius:16px; box-shadow:0 6px 20px rgba(0,0,0,.08); font-size:10.5pt; }
 
-        .balance-row {
-            background:#f0f9ff;
-            padding:12px 16px;
-            border-radius:10px;
-            margin:10px 0;
-            font-weight:600;
-        }
-        .total-btn {
-            background:var(--receipt-blue);
-            color:white;
-            padding:20px;
-            border-radius:14px;
-            text-align:center;
-            font-size:1.6rem;
-            font-weight:800;
-            margin-top:15px;
-        }
+        .balance-row { background:#f0f9ff; padding:12px 16px; border-radius:10px; margin:10px 0; font-weight:600; }
+        .total-btn { background:var(--receipt-blue); color:white; padding:20px; border-radius:14px; text-align:center; font-size:1.6rem; font-weight:800; margin-top:15px; }
         .signature-section { margin-top:40px; text-align:right; }
         .signature-img { height:70px; border-top:3px solid var(--receipt-blue); padding-top:12px; }
         .footer { background:var(--receipt-blue); color:white; padding:20px; text-align:center; font-size:1.2rem; font-weight:600; border-radius:16px; margin-top:40px; }
 
-        /* =============== MOBILE RESPONSIVE =============== */
+        /* MOBILE RESPONSIVE - Only affects layout, NOT the receipt for PDF */
         @media (max-width: 1024px) {
             .container {
                 grid-template-columns: 1fr;
                 gap: 20px;
                 padding: 15px;
             }
-            .form-panel, .preview-panel {
-                width: 100%;
-                border-radius: 20px;
-            }
-            .form-header h1 { font-size: 2.1rem; }
-            .form-body { padding: 25px; }
             .preview-body {
-                height: 520px;
+                height: 560px;
                 padding: 20px;
             }
             #receipt {
-                width: 100%;
-                max-width: 380px;
-                min-height: auto;
-                padding: 18mm 12mm;
-                transform: scale(0.85);
-                transform-origin: top center;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+                transform: scale(0.75);   /* Only visual scaling for preview */
+                max-width: 100%;
             }
-            .receipt-header {
-                padding: 15px 18px;
-                flex-direction: column;
-                gap: 15px;
-                text-align: center;
-            }
-            .company-logo img { height: 85px; }
-            .contact-box { text-align: center; width: 100%; }
-            .received-from-section {
-                flex-direction: column;
-                gap: 15px;
-                text-align: center;
-            }
-            .table-header, .table-item-row {
-                grid-template-columns: 35px 1fr 85px 55px 95px;
-                gap: 8px;
-                font-size: 9.5pt;
-                padding: 12px 14px;
-            }
-            .summary-section { grid-template-columns: 1fr; gap: 20px; }
-            .form-row { grid-template-columns: 1fr; gap: 18px; }
         }
 
         @media (max-width: 480px) {
-            .container { padding: 10px; }
-            .form-body, .preview-body { padding: 18px; }
-            #receipt {
-                max-width: 340px;
-                padding: 15mm 10mm;
-                transform: scale(0.78);
-            }
-            .table-header, .table-item-row {
-                grid-template-columns: 30px 1fr 70px 50px 85px;
-                font-size: 9pt;
-            }
+            .preview-body { height: 480px; }
+            #receipt { transform: scale(0.68); }
         }
     </style>
 </head>
@@ -395,7 +345,7 @@
         document.getElementById('paymentMethodDisplay').textContent = selectedPayment || 'CASH';
     }
 
-    // ==================== FIXED PDF GENERATION ====================
+    // ==================== PDF GENERATION - SINGLE TRUTH ====================
     document.getElementById('generateBtn').addEventListener('click', async () => {
         const btn = document.getElementById('generateBtn');
         btn.disabled = true;
@@ -404,24 +354,15 @@
         try {
             updatePreview();
 
-            const element = document.getElementById('receipt');
-            
-            // Save original styles
-            const originalTransform = element.style.transform;
-            const originalWidth = element.style.width;
-            const originalMaxWidth = element.style.maxWidth;
-            const originalPadding = element.style.padding;
+            const receipt = document.getElementById('receipt');
+            const originalScale = receipt.style.transform;
 
-            // Force desktop/A4 size for PDF
-            element.style.transform = 'scale(1)';
-            element.style.width = '210mm';
-            element.style.maxWidth = '210mm';
-            element.style.padding = '20mm 18mm';
-            element.style.minHeight = '297mm';
+            // Force full desktop style for PDF
+            receipt.style.transform = 'scale(1)';
 
-            await new Promise(r => setTimeout(r, 200));
+            await new Promise(r => setTimeout(r, 150));
 
-            const canvas = await html2canvas(element, {
+            const canvas = await html2canvas(receipt, {
                 scale: 2.8,
                 useCORS: true,
                 backgroundColor: '#ffffff',
@@ -431,10 +372,10 @@
             const imgData = canvas.toDataURL('image/png', 1.0);
             
             const pdf = new jsPDF('p', 'mm', 'a4');
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = pdf.internal.pageSize.getHeight();
+            const width = pdf.internal.pageSize.getWidth();
+            const height = pdf.internal.pageSize.getHeight();
 
-            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            pdf.addImage(imgData, 'PNG', 0, 0, width, height);
 
             const fileName = `Receipt_TFG-R${String(receiptCounter).padStart(3,'0')}_${(document.getElementById('clientCompany').value || 'Client').replace(/[^a-z0-9]/gi,'_')}.pdf`;
             pdf.save(fileName);
@@ -443,15 +384,10 @@
 
         } catch (error) {
             console.error("PDF Error:", error);
-            alert("Failed to generate PDF. Please try again.");
+            alert("Failed to generate PDF.");
         } finally {
-            // Restore mobile styles
-            const element = document.getElementById('receipt');
-            element.style.transform = originalTransform;
-            element.style.width = originalWidth;
-            element.style.maxWidth = originalMaxWidth || '';
-            element.style.padding = originalPadding || '20mm 18mm';
-
+            // Restore preview scale
+            document.getElementById('receipt').style.transform = originalScale;
             btn.disabled = false;
             btn.textContent = "Generate & Download Receipt PDF";
 
@@ -460,12 +396,11 @@
         }
     });
 
-    // Currency Switch
+    // Other scripts (currency, add row, etc.)
     document.querySelectorAll('.currency-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const newCurrency = btn.dataset.currency;
             if (newCurrency === currentCurrency) return;
-
             document.querySelectorAll('.currency-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             currentCurrency = newCurrency;
@@ -474,24 +409,19 @@
                 const value = parseFloat(input.dataset[currentCurrency.toLowerCase()]) || 0;
                 input.value = value > 0 ? value : '';
             });
-
             updatePreview();
         });
     });
 
-    // Input listeners
     document.getElementById('itemsTable').addEventListener('input', e => {
         if (e.target.classList.contains('price')) {
-            const input = e.target;
-            const value = parseFloat(input.value) || 0;
-            input.dataset[currentCurrency.toLowerCase()] = value;
+            e.target.dataset[currentCurrency.toLowerCase()] = parseFloat(e.target.value) || 0;
         }
         updatePreview();
     });
 
     document.getElementById('amountPaid').addEventListener('input', updatePreview);
 
-    // Add Row
     document.getElementById('addRowBtn').addEventListener('click', () => {
         const tbody = document.querySelector('#itemsTable tbody');
         const row = tbody.insertRow();
@@ -505,7 +435,6 @@
         updatePreview();
     });
 
-    // Delete Row
     document.getElementById('itemsTable').addEventListener('click', e => {
         if (e.target.classList.contains('delete-btn') && document.querySelectorAll('#itemsTable tbody tr').length > 1) {
             e.target.closest('tr').remove();
@@ -514,13 +443,14 @@
         }
     });
 
-    // Payment Method
-    document.querySelectorAll('.payment-option').forEach(o => o.addEventListener('click', () => {
-        document.querySelectorAll('.payment-option').forEach(x => x.classList.remove('selected'));
-        o.classList.add('selected');
-        selectedPayment = o.dataset.method;
-        updatePreview();
-    }));
+    document.querySelectorAll('.payment-option').forEach(o => {
+        o.addEventListener('click', () => {
+            document.querySelectorAll('.payment-option').forEach(x => x.classList.remove('selected'));
+            o.classList.add('selected');
+            selectedPayment = o.dataset.method;
+            updatePreview();
+        });
+    });
 
     // Initialize
     document.getElementById('receiptDate').valueAsDate = new Date();
