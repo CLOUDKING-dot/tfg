@@ -262,11 +262,6 @@
         font-size: 1.4rem;
     }
 }
-/* Force desktop mode for PDF generation */
-#receipt.desktop-pdf-mode * {
-    font-size: 10.5pt !important;
-    line-height: 1.5 !important;
-}
     </style>
 </head>
 <body>
@@ -467,72 +462,50 @@
     }
 
     // Generate PDF - FIXED VERSION
-   document.getElementById('generateBtn').addEventListener('click', async () => {
+    document.getElementById('generateBtn').addEventListener('click', async () => {
         const btn = document.getElementById('generateBtn');
         btn.disabled = true;
         btn.textContent = "Generating PDF...";
 
-        const receiptEl = document.getElementById('receipt');
-        
-        // Save original styles
-        const originalStyles = {
-            width: receiptEl.style.width,
-            maxWidth: receiptEl.style.maxWidth,
-            padding: receiptEl.style.padding,
-            transform: receiptEl.style.transform,
-            transformOrigin: receiptEl.style.transformOrigin,
-            minHeight: receiptEl.style.minHeight,
-            fontSize: receiptEl.style.fontSize,
-            className: receiptEl.className
-        };
-
         try {
             updatePreview();
 
-            // === FORCE FULL DESKTOP LAYOUT (Bypass all mobile styles) ===
-            receiptEl.style.width = '210mm';
-            receiptEl.style.maxWidth = 'none';
-            receiptEl.style.padding = '20mm 18mm';
-            receiptEl.style.transform = 'none';
-            receiptEl.style.transformOrigin = 'top left';
-            receiptEl.style.minHeight = '297mm';
-            receiptEl.style.fontSize = '10.5pt';
-            
-            // Temporarily disable mobile-specific classes if any
-            receiptEl.classList.add('desktop-pdf-mode');
+            const element = document.getElementById('receipt');
+            const originalTransform = element.style.transform;
+            element.style.transform = 'scale(1)';
 
-            // Give browser time to reflow layout
-            await new Promise(resolve => setTimeout(resolve, 150));
+            // Wait a bit for rendering
+            await new Promise(resolve => setTimeout(resolve, 100));
 
-            const canvas = await html2canvas(receiptEl, {
-                scale: 3,                    // Even higher quality
+            const canvas = await html2canvas(element, {
+                scale: 2,
                 useCORS: true,
                 backgroundColor: '#ffffff',
-                logging: false,
-                width: 794,                  // Exact A4 width in pixels
-                height: 1123                 // Exact A4 height
+                logging: false
             });
 
             const imgData = canvas.toDataURL('image/png', 1.0);
+
             const pdf = new jsPDF('p', 'mm', 'a4');
-            
-            pdf.addImage(imgData, 'PNG', 0, 0, 
-                        pdf.internal.pageSize.getWidth(), 
-                        pdf.internal.pageSize.getHeight());
+            const width = pdf.internal.pageSize.getWidth();
+            const height = pdf.internal.pageSize.getHeight();
+
+            pdf.addImage(imgData, 'PNG', 0, 0, width, height);
 
             const fileName = `Receipt_TFG-R${String(receiptCounter).padStart(3,'0')}_${(document.getElementById('clientCompany').value || 'Client').replace(/[^a-z0-9]/gi,'_')}.pdf`;
             pdf.save(fileName);
 
+            console.log("✅ PDF Downloaded successfully:", fileName);
+
+            // Reset
+            element.style.transform = originalTransform;
             receiptCounter++;
             localStorage.setItem('receiptCounter', receiptCounter);
 
         } catch (error) {
-            console.error("PDF Generation Error:", error);
-            alert("Error generating PDF. Check console (F12) for details.");
+            console.error("❌ PDF Generation Error:", error);
+            alert("Error generating PDF. Please check console (F12) for details.");
         } finally {
-            // Restore everything
-            Object.assign(receiptEl.style, originalStyles);
-            receiptEl.classList.remove('desktop-pdf-mode');
             btn.disabled = false;
             btn.textContent = "Generate & Download Receipt PDF";
         }
